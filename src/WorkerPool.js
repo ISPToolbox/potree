@@ -4,13 +4,37 @@ export class WorkerPool{
 		this.workers = {};
 	}
 
+	createWorker (workerUrl) {
+		var worker = null;
+		try {
+			worker = new Worker(workerUrl);
+		} catch (e) {
+			try {
+				var blob;
+				try {
+					blob = new Blob(["importScripts('" + workerUrl + "');"], { "type": 'application/javascript' });
+				} catch (e1) {
+					var blobBuilder = new (window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder)();
+					blobBuilder.append("importScripts('" + workerUrl + "');");
+					blob = blobBuilder.getBlob('application/javascript');
+				}
+				var url = window.URL || window.webkitURL;
+				var blobUrl = url.createObjectURL(blob);
+				worker = new Worker(blobUrl);
+			} catch (e2) {
+				//if it still fails, there is nothing much we can do
+			}
+		}
+		return worker;
+	}
+
 	getWorker(url){
 		if (!this.workers[url]){
 			this.workers[url] = [];
 		}
 
 		if (this.workers[url].length === 0){
-			let worker = new Worker(url);
+			let worker = this.createWorker(url);
 			this.workers[url].push(worker);
 		}
 
