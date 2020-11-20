@@ -41,6 +41,7 @@ export class CameraAnimation extends EventDispatcher{
 		// "centripetal", "chordal", "catmullrom"
 		this.curveType = "centripetal" 
 		this.visible = true;
+		this.playing = false;
 
 		this.createUpdateHook();
 		this.createPath();
@@ -485,18 +486,19 @@ export class CameraAnimation extends EventDispatcher{
 		return this.duration;
 	}
 
-	play(){
+	play(loop){
 
-		const tStart = performance.now();
+		this.tStart = performance.now();
 		const duration = this.duration;
 
 		const originalyVisible = this.visible;
 		this.setVisible(false);
+		this.playing = true;
 
-		const onUpdate = (delta) => {
+		this.onUpdate = (delta) => {
 
 			let tNow = performance.now();
-			let elapsed = (tNow - tStart) / 1000;
+			let elapsed = (tNow - this.tStart) / 1000;
 			let t = elapsed / duration;
 
 			this.set(t);
@@ -506,17 +508,35 @@ export class CameraAnimation extends EventDispatcher{
 			viewer.scene.view.position.copy(frame.position);
 			viewer.scene.view.lookAt(frame.target);
 
-
 			if(t > 1){
-				this.setVisible(originalyVisible);
-
-				this.viewer.removeEventListener("update", onUpdate);
+				if(loop){
+					this.tStart = performance.now();
+				} else {
+					this.playing = false;
+					this.setVisible(originalyVisible);
+					this.viewer.removeEventListener("update", this.onUpdate);
+				}
 			}
 
 		};
 
-		this.viewer.addEventListener("update", onUpdate);
+		this.viewer.addEventListener("update", this.onUpdate);
 
+	}
+	stop(){
+		if(this.playing){
+			this.viewer.removeEventListener("update", this.onUpdate);
+			let tNow = performance.now();
+			this.tOffset = tNow - this.tStart;
+			this.playing = false;
+		}
+	}
+	resume(){
+		if(!this.playing){
+			this.tStart = performance.now() - this.tOffset;
+			this.viewer.addEventListener("update", this.onUpdate);
+			this.playing = true;
+		}
 	}
 
 }
