@@ -42,6 +42,7 @@ export class CameraAnimation extends EventDispatcher{
 		this.curveType = "centripetal" 
 		this.visible = true;
 		this.playing = false;
+		this.onUpdate = null;
 
 		this.createUpdateHook();
 		this.createPath();
@@ -487,58 +488,53 @@ export class CameraAnimation extends EventDispatcher{
 	}
 
 	play(loop){
-
-		this.tStart = performance.now();
 		const duration = this.duration;
-
+		
 		const originalyVisible = this.visible;
 		this.setVisible(false);
-		this.playing = true;
 
-		this.onUpdate = (delta) => {
+		if(!this.playing && this.onUpdate != null){
+			this.tStart = performance.now() - this.tOffset;
+			this.viewer.addEventListener("update", this.onUpdate);
+		} else {
+			this.tStart = performance.now();
+			this.onUpdate = (delta) => {
 
-			let tNow = performance.now();
-			let elapsed = (tNow - this.tStart) / 1000;
-			let t = elapsed / duration;
-
-			this.set(t);
-
-			const frame = this.at(t);
-
-			viewer.scene.view.position.copy(frame.position);
-			viewer.scene.view.lookAt(frame.target);
-
-			if(t > 1){
-				if(loop){
-					this.tStart = performance.now();
-				} else {
-					this.playing = false;
-					this.setVisible(originalyVisible);
-					this.viewer.removeEventListener("update", this.onUpdate);
+				let tNow = performance.now();
+				let elapsed = (tNow - this.tStart) / 1000;
+				let t = elapsed / duration;
+	
+				this.set(t);
+	
+				const frame = this.at(t);
+	
+				viewer.scene.view.position.copy(frame.position);
+				viewer.scene.view.lookAt(frame.target);
+	
+				if(t > 1){
+					if(loop){
+						this.tStart = performance.now();
+					} else {
+						this.playing = false;
+						this.setVisible(originalyVisible);
+						this.viewer.removeEventListener("update", this.onUpdate);
+					}
 				}
-			}
-
-		};
-
-		this.viewer.addEventListener("update", this.onUpdate);
-
+	
+			};
+			this.viewer.addEventListener("update", this.onUpdate);
+		}
+		this.playing = true;
 	}
-	stop(){
-		if(this.playing){
+
+	pause(){
+		if (this.onUpdate != null) {
 			this.viewer.removeEventListener("update", this.onUpdate);
 			let tNow = performance.now();
 			this.tOffset = tNow - this.tStart;
 			this.playing = false;
 		}
 	}
-	resume(){
-		if(!this.playing){
-			this.tStart = performance.now() - this.tOffset;
-			this.viewer.addEventListener("update", this.onUpdate);
-			this.playing = true;
-		}
-	}
-
 }
 
 
