@@ -278,8 +278,9 @@ export class Viewer extends EventDispatcher{
 
 		if ($(this.renderArea).find('#potree_failpage').length === 0) {
 			let elFailPage = $(`
-			<div id="#potree_failpage" class="potree_failpage"> 
+			<div id="potree_failpage" class="potree_failpage d-flex"> 
 				
+				<div class="col justify-content-center align-self-center">
 				<h1>Potree Encountered An Error </h1>
 
 				<p>
@@ -288,27 +289,16 @@ export class Viewer extends EventDispatcher{
 				We recommend to use 
 				<a href="https://www.google.com/chrome/browser" target="_blank" style="color:initial">Chrome</a>
 				or 
-				<a href="https://www.mozilla.org/" target="_blank">Firefox</a>.
-				</p>
-
-				<p>
-				Please also visit <a href="http://webglreport.com/" target="_blank">webglreport.com</a> and 
-				check whether your system supports WebGL.
-				</p>
-				<p>
-				If you are already using one of the recommended browsers and WebGL is enabled, 
-				consider filing an issue report at <a href="https://github.com/potree/potree/issues" target="_blank">github</a>,<br>
-				including your operating system, graphics card, browser and browser version, as well as the 
-				error message below.<br>
-				Please do not report errors on unsupported browsers.
+				<a href="https://www.mozilla.org/" target="_blank">Firefox</a> on a laptop/desktop/android.
 				</p>
 
 				<pre id="potree_error_console" style="width: 100%; height: 100%"></pre>
+				</div>
 				
 			</div>`);
 
 			let elErrorMessage = elFailPage.find('#potree_error_console');
-			elErrorMessage.html(error.stack);
+			elErrorMessage.html();
 
 			$(this.renderArea).append(elFailPage);
 		}
