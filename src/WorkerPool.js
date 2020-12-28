@@ -7,6 +7,9 @@ export class WorkerPool{
 	createWorker (workerUrl) {
 		var worker = null;
 		try {
+			if(navigator.userAgent.indexOf('Firefox') > 0){
+				throw('Firefox does not raise exception, just security error');
+			}
 			worker = new Worker(workerUrl);
 		} catch (e) {
 			try {
@@ -22,7 +25,6 @@ export class WorkerPool{
 				var blobUrl = url.createObjectURL(blob);
 				worker = new Worker(blobUrl);
 			} catch (e2) {
-				//if it still fails, there is nothing much we can do
 			}
 		}
 		return worker;
