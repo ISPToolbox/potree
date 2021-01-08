@@ -281,7 +281,7 @@ export class Viewer extends EventDispatcher{
 			<div id="potree_failpage" class="potree_failpage d-flex"> 
 				
 				<div class="col justify-content-center align-self-center">
-				<h1>Potree Encountered An Error </h1>
+				<h1>Encountered An Error </h1>
 
 				<p>
 				This may happen if your browser or graphics card is not supported.
@@ -289,7 +289,8 @@ export class Viewer extends EventDispatcher{
 				We recommend to use 
 				<a href="https://www.google.com/chrome/browser" target="_blank" style="color:initial">Chrome</a>
 				or 
-				<a href="https://www.mozilla.org/" target="_blank">Firefox</a> on a laptop/desktop/android.
+				<a href="https://www.mozilla.org/" target="_blank">Firefox</a>.
+				iOS and Safari currently do not support WebGL2.
 				</p>
 
 				<pre id="potree_error_console" style="width: 100%; height: 100%"></pre>
