@@ -43,6 +43,7 @@ export class CameraAnimation extends EventDispatcher{
 		this.visible = true;
 		this.playing = false;
 		this.onUpdate = null;
+		this.interpOnCP = false;
 
 		this.createUpdateHook();
 		this.createPath();
@@ -370,7 +371,7 @@ export class CameraAnimation extends EventDispatcher{
 			this.targetCurve = curve;
 		}
 	}
-
+	
 	at(t){
 		
 		if(t > 1){
@@ -378,9 +379,30 @@ export class CameraAnimation extends EventDispatcher{
 		}else if(t < 0){
 			t = 0;
 		}
+		let camPos = null;
+		let target = null;
+		if(this.interpOnCP){
+			// Use linear interpolation between control points
+			// rather than spline based
+			let index = (this.controlPoints.length - 1) * t;
+			let index_floor = Math.floor(index);
+			let index_remainder = index - index_floor;
+			const frame = this.controlPoints[index_floor]
+			const next_frame = this.controlPoints[
+				index_floor === (this.controlPoints.length - 1) ? 0 : index_floor + 1
+			];
+			camPos = new THREE.Vector3().copy(next_frame.position);
+			camPos.sub(frame.position).multiplyScalar(index_remainder);
+			camPos.add(frame.position);
 
-		const camPos = this.cameraCurve.getPointAt(t);
-		const target = this.targetCurve.getPointAt(t);
+			target = new THREE.Vector3().copy(next_frame.target);
+			target.sub(frame.target).multiplyScalar(index_remainder);
+			target.add(frame.target);
+		} else {
+			camPos = this.cameraCurve.getPointAt(t);
+			target = this.targetCurve.getPointAt(t);
+		}
+		
 
 		const frame = {
 			position: camPos,
@@ -479,6 +501,10 @@ export class CameraAnimation extends EventDispatcher{
 		this.visible = visible;
 	}
 
+	setInterpolateControlPoints(setting){
+		this.interpOnCP = setting;
+	}
+
 	setDuration(duration){
 		this.duration = duration;
 	}
@@ -489,7 +515,7 @@ export class CameraAnimation extends EventDispatcher{
 
 	play(loop){
 		const duration = this.duration;
-		
+
 		const originalyVisible = this.visible;
 		this.setVisible(false);
 
@@ -536,5 +562,3 @@ export class CameraAnimation extends EventDispatcher{
 		}
 	}
 }
-
-
