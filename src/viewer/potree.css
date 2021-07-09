@@ -759,21 +759,6 @@ body{
 	scrollbar-width: thin;
 }
 
-
-
-::-webkit-scrollbar {
-	width: 6px;
-	background-color: var(--bg-color);
-}
-
-::-webkit-scrollbar-track {
-
-}
-
-::-webkit-scrollbar-thumb {
-	background-color: var(--color-1);
-}
-
 .propertypanel_content .heading{
 	font-weight: bold;
 	padding-top: 0.6em;
